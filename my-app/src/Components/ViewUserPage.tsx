@@ -7,39 +7,31 @@ import {
   Button,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { User } from "./config/user";
+import { useContext } from "react";
+import { UserContext } from "./UserContext";
 import { userFormFields } from "./config/userFormConfig";
 
 
 const ViewUserPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const userContext = useContext(UserContext);
 
-  const [user, setUser] = useState<User | null>(null);
+  if (!userContext) return null;
 
-  useEffect(() => {
-    const mockUser: User = {
-      id: Number(id),
-      firstName: "John",
-      lastName: "Doe",
-      email: "john@example.com",
-      phone: "123456789",
-    };
+  const { users } = userContext;
+  const user = users.find((u) => u.id === Number(id));
 
-    setUser(mockUser);
-  }, [id]);
-
-  if (!user) return null;
+  if (!user) return <div>User not found</div>;
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ padding: 4, marginTop: 5 }}>
+      <Paper elevation={3} sx={{ p: 4, mt: 5 }}>
         <Typography variant="h5" gutterBottom>
           User Details
         </Typography>
 
-        <Divider sx={{ marginBottom: 3 }} />
+        <Divider sx={{ mb: 3 }} />
 
         <Box display="flex" flexDirection="column" gap={2}>
           {userFormFields.map((field) => (
@@ -47,9 +39,8 @@ const ViewUserPage = () => {
               <Typography variant="subtitle2" color="text.secondary">
                 {field.label}
               </Typography>
-              <Typography variant="body1">
-                {user[field.name] || "-"}
-              </Typography>
+              
+              <Typography variant="body1">{user[field.name]}</Typography>
             </Box>
           ))}
         </Box>

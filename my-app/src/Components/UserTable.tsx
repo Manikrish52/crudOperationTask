@@ -32,7 +32,6 @@ const UserTable = ({ users, loading, onView, onEdit, onDelete }: Props) => {
   const [loadingMore, setLoadingMore] = React.useState(false); 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  // Initial load
   React.useEffect(() => {
     setVisibleUsers(users.slice(0, SCROLL_BATCH));
   }, [users]);
