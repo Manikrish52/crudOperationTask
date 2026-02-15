@@ -1,5 +1,17 @@
 import { useState, ChangeEvent, useContext } from "react";
-import { Button, Grid, Typography, TextField, Snackbar, Alert } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Typography,
+  TextField,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import UserTable from "./UserTable";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -10,9 +22,13 @@ const UsersPage = () => {
   const userContext = useContext(UserContext);
 
   const [searchText, setSearchText] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // for success message
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  if (!userContext) return null; 
+  // Dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
+  if (!userContext) return null;
 
   const { users, deleteUser } = userContext;
 
@@ -22,23 +38,51 @@ const UsersPage = () => {
       .includes(searchText.toLowerCase())
   );
 
+  // When delete button is clicked (opens dialog)
   const handleDelete = (userId: number) => {
-    deleteUser(userId);
-    setSnackbarOpen(true); 
+    setSelectedUserId(userId);
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm delete
+  const handleConfirmDelete = () => {
+    if (selectedUserId !== null) {
+      deleteUser(selectedUserId);
+      setSnackbarOpen(true);
+    }
+    setDeleteDialogOpen(false);
+    setSelectedUserId(null);
+  };
+
+  // Cancel delete
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setSelectedUserId(null);
   };
 
   return (
     <Grid m={2}>
-      <Grid container spacing={2} sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Grid>
           <TextField
             label="Search Users"
             variant="outlined"
             size="small"
             value={searchText}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setSearchText(e.target.value)
+            }
           />
         </Grid>
+
         <Grid>
           <Button
             sx={{ textTransform: "none", backgroundColor: "#d12f2ff2" }}
@@ -46,7 +90,9 @@ const UsersPage = () => {
             onClick={() => navigate("/create")}
           >
             <AddCircleOutlineIcon />
-            <Typography sx={{ textTransform: "none", ml: 1, fontWeight: "600" }}>
+            <Typography
+              sx={{ textTransform: "none", ml: 1, fontWeight: "600" }}
+            >
               Add User
             </Typography>
           </Button>
@@ -55,23 +101,47 @@ const UsersPage = () => {
 
       <UserTable
         users={filteredUsers}
-        loading={false} 
+        loading={false}
         onView={(user) => navigate(`/view/${user.id}`)}
         onEdit={(user) => navigate(`/edit/${user.id}`)}
-        onDelete={handleDelete} 
+        onDelete={handleDelete}
       />
 
-      {/* Snackbar for delete success */}
+      {/* Delete Success Snackbar */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: "100%" }}>
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           User deleted successfully!
         </Alert>
       </Snackbar>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this user?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>Cancel</Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   );
 };
