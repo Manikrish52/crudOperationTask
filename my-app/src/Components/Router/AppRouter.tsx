@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {  Routes, Route, HashRouter } from "react-router-dom";
 import UsersPage from "../UsersPage";
 import CreateUserPage from "../CreateUserPage";
 import EditUserPage from "../EditUserPage";
@@ -7,7 +7,7 @@ import ViewUserPage from "../ViewUserPage";
 
 const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <HashRouter >
       <Routes>
         <Route path="/" element={<UsersPage />} />
         <Route path="/create" element={<CreateUserPage />} />
@@ -15,7 +15,7 @@ const AppRouter = () => {
         <Route path="/view/:id" element={<ViewUserPage />} />
 
       </Routes>
-    </BrowserRouter>
+    </HashRouter >
   );
 };
 
